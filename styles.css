@@ -1,0 +1,76 @@
+:root {
+    --primary-color: #2563eb;
+    --primary-dark: #1d4ed8;
+    --bg-main: #f3f4f6;
+    --card-bg: #ffffff;
+    --card-border: #e5e7eb;
+    --text-main: #1f2937;
+    --text-muted: #6b7280;
+    --radius-card: 0.75rem;
+    --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', 'Nunito', sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    -webkit-tap-highlight-color: transparent;
+}
+
+.header-gradient {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+}
+
+.brand-logo-header {
+    font-family: Arial, sans-serif;
+    letter-spacing: -1px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.secret-card {
+    background-color: var(--card-bg);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--card-border);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.secret-card:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
+}
+
+.category-link.active {
+    background-color: #eff6ff;
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.strength-bar {
+    height: 6px;
+    border-radius: 9999px;
+    transition: width 0.25s ease, background-color 0.25s ease;
+}
+
+.no-scrollbar {
+    scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+textarea::-webkit-scrollbar,
+div::-webkit-scrollbar {
+    width: 6px;
+}
+
+textarea::-webkit-scrollbar-track,
+div::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+textarea::-webkit-scrollbar-thumb,
+div::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 10px;
+}

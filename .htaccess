@@ -1,0 +1,8 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Si el archivo o directorio existe físicamente, servirlo directamente
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    # URL amigable para cada secreto: /secreto/123 -> index.php?secreto=123
+    RewriteRule ^secreto/([0-9]+)/?$ index.php?secreto=$1 [L,QSA]
+</IfModule>

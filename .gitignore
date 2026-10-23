@@ -1,0 +1,51 @@
+# Variables de entorno y configuraciones sensibles locales
+.env
+.env.*
+!.env.example
+config.local.php
+db_connect.local.php
+GEMINI.md
+
+# Dependencias y gestores de paquetes (por si se usan en el futuro)
+/vendor/
+/node_modules/
+composer.phar
+
+# Archivos de registro (logs) y bases de datos temporales
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+error_log
+php_error.log
+*.sql.gz
+*.sql.bak
+*.sqlite
+*.sqlite3
+
+# Sesiones y caché de PHP
+/tmp/
+/cache/
+/sessions/
+sess_*
+
+# Archivos de editores e IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.sublime-project
+*.sublime-workspace
+
+# Archivos del Sistema Operativo (Windows, macOS, Linux)
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+.AppleDouble
+.LSOverride
+*~

@@ -8,8 +8,8 @@ $scriptDir = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '')
 $baseHref  = $scriptDir . '/';
 
 $initialSecretId = isset($_GET['secreto']) && is_numeric($_GET['secreto']) ? (int) $_GET['secreto'] : null;
-$pageTitle       = 'TuSecreto - Comunidad Anónima';
-$pageDescription = 'Comunidad anónima segura para desahogarte, compartir tus experiencias y leer historias reales.';
+$pageTitle       = 'ClonTS - Comunidad Social';
+$pageDescription = 'Comunidad segura para desahogarte, compartir tus experiencias, interactuar y leer historias reales.';
 
 if ($initialSecretId !== null && $initialSecretId > 0) {
     try {
@@ -24,7 +24,7 @@ if ($initialSecretId !== null && $initialSecretId > 0) {
                 : 'Secreto #' . $secretMeta['id'] . ' (' . $secretMeta['category'] . ')';
             $rawDesc  = mb_substr(trim(preg_replace('/\s+/', ' ', (string) $secretMeta['content'])), 0, 160) . '...';
 
-            $pageTitle       = htmlspecialchars($rawTitle . ' | TuSecreto', ENT_QUOTES, 'UTF-8');
+            $pageTitle       = htmlspecialchars($rawTitle . ' | ClonTS', ENT_QUOTES, 'UTF-8');
             $pageDescription = htmlspecialchars($rawDesc, ENT_QUOTES, 'UTF-8');
         }
     } catch (PDOException $e) {
@@ -49,7 +49,7 @@ if ($initialSecretId !== null && $initialSecretId > 0) {
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=<?= filemtime(__DIR__ . '/styles.css') ?>">
 </head>
 <body class="bg-gray-100 flex flex-col min-h-screen" data-initial-secret-id="<?= $initialSecretId ? (int) $initialSecretId : '' ?>">
 
@@ -57,7 +57,7 @@ if ($initialSecretId !== null && $initialSecretId > 0) {
     <header class="header-gradient text-white shadow-lg w-full sticky top-0 z-50">
         <div class="max-w-6xl mx-auto px-4 h-16 flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <a href="./" onclick="return window.resetToHome(event)" class="text-2xl font-black brand-logo-header hover:text-blue-100 transition tracking-tight">tusecreto</a>
+                <a href="./" onclick="return window.resetToHome(event)" class="text-2xl font-black brand-logo-header hover:text-blue-100 transition tracking-tight">ClonTS</a>
             </div>
             
             <nav class="hidden lg:flex lg:justify-center lg:flex-1 space-x-2">
@@ -69,7 +69,7 @@ if ($initialSecretId !== null && $initialSecretId > 0) {
                 </button>
             </nav>
 
-            <div class="flex items-center space-x-2 md:space-x-4" id="auth-buttons-container">
+            <div class="flex items-center space-x-2 md:space-x-3" id="auth-buttons-container">
                 <!-- Se llena dinámicamente con app.js -->
             </div>
         </div>
@@ -169,8 +169,8 @@ if ($initialSecretId !== null && $initialSecretId > 0) {
         <!-- SIDEBAR -->
         <aside class="w-full md:w-[320px] flex-shrink-0 space-y-6">
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-                <h3 class="font-bold text-gray-800 text-lg mb-2"><i class="fas fa-info-circle text-blue-500 mr-2"></i>Sobre TuSecreto</h3>
-                <p class="text-sm text-gray-600 mb-4 leading-relaxed">Comunidad anónima segura para desahogarte, compartir tus experiencias y leer historias reales con enlaces propios para compartir.</p>
+                <h3 class="font-bold text-gray-800 text-lg mb-2"><i class="fas fa-info-circle text-blue-500 mr-2"></i>Sobre ClonTS</h3>
+                <p class="text-sm text-gray-600 mb-4 leading-relaxed">Comunidad para desahogarte, compartir tus experiencias, personalizar tu estado y visitar perfiles de otros usuarios.</p>
                 <button onclick="window.openSecretModal()" class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl shadow-sm transition-colors">
                     <i class="fas fa-pen mr-2"></i>Escribir Historia
                 </button>
@@ -209,11 +209,28 @@ if ($initialSecretId !== null && $initialSecretId > 0) {
         </aside>
     </div>
 
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-gray-200 mt-auto w-full">
+        <div class="max-w-6xl mx-auto px-4 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-600">
+            <div class="flex items-center space-x-2">
+                <span class="font-black text-blue-600 tracking-tight text-base">ClonTS</span>
+                <span class="text-gray-300">|</span>
+                <span>Desarrollado por <strong class="text-gray-800">Joel Galeano</strong></span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <a href="https://github.com/JoelGaleano" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 font-bold text-gray-700 hover:text-blue-600 bg-gray-100 hover:bg-blue-50 px-4 py-2 rounded-full transition">
+                    <i class="fab fa-github text-lg"></i>
+                    <span>github.com/JoelGaleano</span>
+                </a>
+            </div>
+        </div>
+    </footer>
+
     <!-- MODAL NUEVO SECRETO -->
     <div id="secret-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[90] hidden items-center justify-center p-4">
         <div class="bg-white rounded-3xl w-full max-w-2xl shadow-2xl flex flex-col overflow-hidden relative">
             <div class="px-8 py-5 border-b border-slate-100 flex justify-between items-center">
-                <h3 class="font-extrabold text-xl text-slate-800"><i class="fa-solid fa-pen text-blue-500 mr-2"></i>Nueva Historia Anónima</h3>
+                <h3 class="font-extrabold text-xl text-slate-800"><i class="fa-solid fa-pen text-blue-500 mr-2"></i>Nueva Historia</h3>
                 <button onclick="window.closeSecretModal()" class="text-slate-400 hover:text-slate-600 p-2"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             
@@ -256,7 +273,7 @@ if ($initialSecretId !== null && $initialSecretId > 0) {
                 <div class="mb-4">
                     <input type="text" id="modal-title" maxlength="150" placeholder="Título de tu historia (Opcional)" class="w-full border-2 border-gray-100 rounded-xl px-4 py-2 font-bold text-gray-800 focus:border-blue-500 outline-none">
                 </div>
-                <textarea id="secret-input" class="w-full border-2 border-gray-100 rounded-xl px-4 py-4 min-h-[160px] focus:border-blue-500 outline-none" placeholder="Escribe tu confesión de forma completamente anónima (mínimo 10 caracteres)..."></textarea>
+                <textarea id="secret-input" class="w-full border-2 border-gray-100 rounded-xl px-4 py-4 min-h-[160px] focus:border-blue-500 outline-none" placeholder="Escribe tu confesión o historia (mínimo 10 caracteres)..."></textarea>
             </div>
             
             <div class="px-8 py-5 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
@@ -266,12 +283,12 @@ if ($initialSecretId !== null && $initialSecretId > 0) {
         </div>
     </div>
 
-    <!-- MODAL AUTH (REGISTRO Y LOGIN MEJORADOS) -->
-    <div id="auth-modal-overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] hidden flex-col items-center justify-center p-4">
+    <!-- MODAL AUTH (REGISTRO Y LOGIN) -->
+    <div id="auth-modal-overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[95] hidden flex-col items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden relative p-8 max-h-[90vh] overflow-y-auto">
             <button type="button" onclick="window.closeAuthModals()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 z-50 w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200"><i class="fas fa-times"></i></button>
             <h2 class="text-2xl font-black text-center text-slate-900 mb-1" id="auth-title">Bienvenido</h2>
-            <p class="text-xs text-center text-slate-500 mb-6" id="auth-subtitle">Tu identidad siempre permanece anónima al publicar</p>
+            <p class="text-xs text-center text-slate-500 mb-6" id="auth-subtitle">Interactúa con tu alias y personaliza tu perfil</p>
             
             <div class="flex border-b border-slate-200 mb-6">
                 <button type="button" onclick="window.toggleAuthMode('login')" id="tab-login" class="flex-1 py-2 font-bold text-blue-600 border-b-2 border-blue-600">Iniciar Sesión</button>
@@ -283,7 +300,7 @@ if ($initialSecretId !== null && $initialSecretId > 0) {
                 <div id="register-username-group" class="hidden">
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Alias / Usuario</label>
                     <div class="relative">
-                        <span class="absolute left-3.5 top-3 text-slate-400"><i class="fas fa-user-secret"></i></span>
+                        <span class="absolute left-3.5 top-3 text-slate-400"><i class="fas fa-user"></i></span>
                         <input type="text" id="auth-username" placeholder="Ej: sombra_99" maxlength="25" class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-100 border-2 border-transparent focus:bg-white focus:border-blue-500 outline-none text-sm">
                     </div>
                     <span class="text-[11px] text-slate-400">3-25 caracteres (letras, números o guion bajo).</span>
@@ -326,7 +343,7 @@ if ($initialSecretId !== null && $initialSecretId > 0) {
                     </div>
 
                     <div class="border-t border-slate-100 pt-3">
-                        <p class="text-xs font-bold text-slate-500 uppercase mb-2">Valores por defecto al publicar (Opcional)</p>
+                        <p class="text-xs font-bold text-slate-500 uppercase mb-2">Datos básicos de tu perfil</p>
                         <div class="grid grid-cols-3 gap-2">
                             <div>
                                 <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Género</label>
@@ -362,7 +379,7 @@ if ($initialSecretId !== null && $initialSecretId > 0) {
         </div>
     </div>
 
-    <!-- MODAL COMENTARIOS -->
+    <!-- MODAL COMENTARIOS (CON AUTOR VISIBLE Y RESPUESTAS) -->
     <div id="comments-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden items-center justify-center p-4">
         <div class="bg-white rounded-3xl w-full max-w-2xl h-[85vh] shadow-2xl flex flex-col">
             <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-white rounded-t-3xl z-10 shadow-sm">
@@ -372,22 +389,73 @@ if ($initialSecretId !== null && $initialSecretId > 0) {
                 <button onclick="window.closeCommentsModal()" class="text-slate-400 hover:text-slate-600 p-2"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             
-            <div class="flex-grow overflow-y-auto bg-slate-50 p-6 space-y-4" id="comments-list"></div>
+            <div class="flex-grow overflow-y-auto bg-slate-50 p-6 space-y-3" id="comments-list"></div>
             
             <div class="p-4 bg-white border-t border-slate-200 rounded-b-3xl">
+                <!-- Banner de respuesta activa -->
+                <div id="reply-banner" class="hidden mb-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded-xl items-center justify-between text-xs text-blue-800 font-semibold">
+                    <span><i class="fas fa-reply mr-1.5 text-blue-500"></i>Respondiendo a <strong id="reply-target-username">@usuario</strong></span>
+                    <button type="button" onclick="window.cancelReply()" class="text-blue-500 hover:text-blue-700 font-bold ml-2">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
                 <form onsubmit="window.postComment(event)" class="flex gap-2">
-                    <input type="text" id="new-comment-input" maxlength="1000" placeholder="Escribe un comentario amigable..." class="flex-grow border-2 border-slate-100 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none">
+                    <input type="text" id="new-comment-input" maxlength="1000" placeholder="Escribe un comentario..." class="flex-grow border-2 border-slate-100 rounded-xl px-4 py-3 text-sm focus:border-blue-500 outline-none">
                     <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold transition"><i class="fa-solid fa-paper-plane"></i></button>
                 </form>
             </div>
         </div>
     </div>
 
+    <!-- MODAL PERFIL DE USUARIO -->
+    <div id="profile-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[105] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl w-full max-w-3xl h-[88vh] shadow-2xl flex flex-col overflow-hidden">
+            <!-- Cabecera del Modal -->
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-white z-10">
+                <h3 class="font-extrabold text-lg text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-id-card text-blue-600"></i>
+                    <span>Perfil de Usuario</span>
+                </h3>
+                <button onclick="window.closeProfileModal()" class="text-slate-400 hover:text-slate-600 p-2">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Contenido scrolleable del Perfil -->
+            <div class="flex-grow overflow-y-auto bg-slate-50 p-6 space-y-6" id="profile-modal-body">
+                <!-- Se inyecta dinámicamente desde app.js -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE NOTIFICACIONES -->
+    <div id="notifications-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[105] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl w-full max-w-lg max-h-[82vh] shadow-2xl flex flex-col overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-white">
+                <h3 class="font-extrabold text-lg text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-bell text-blue-500"></i>
+                    <span>Tus Notificaciones</span>
+                </h3>
+                <div class="flex items-center gap-2">
+                    <button onclick="window.markAllNotificationsRead()" class="text-xs font-bold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition">
+                        <i class="fas fa-check-double mr-1"></i>Marcar leídas
+                    </button>
+                    <button onclick="window.closeNotificationsModal()" class="text-slate-400 hover:text-slate-600 p-2">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="flex-grow overflow-y-auto bg-slate-50 p-4 space-y-2.5" id="notifications-list">
+                <!-- Se carga dinámicamente desde app.js -->
+            </div>
+        </div>
+    </div>
+
     <!-- TOAST -->
-    <div id="toast-notification" class="bg-gray-800 text-white py-3 px-5 rounded-lg shadow-xl fixed bottom-4 right-4 z-[110] transform translate-y-20 opacity-0 pointer-events-none transition-all duration-300">
+    <div id="toast-notification" class="bg-gray-800 text-white py-3 px-5 rounded-lg shadow-xl fixed bottom-4 right-4 z-[120] transform translate-y-20 opacity-0 pointer-events-none transition-all duration-300">
         <i class="fas fa-info-circle mr-2 text-blue-400"></i><span id="toast-message">Notificación</span>
     </div>
 
-    <script src="app.js"></script>
+    <script src="app.js?v=<?= filemtime(__DIR__ . '/app.js') ?>"></script>
 </body>
 </html>

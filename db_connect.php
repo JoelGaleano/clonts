@@ -32,8 +32,8 @@ class Database
     }
 
     /**
-     * Asegura que la tabla users tenga las columnas extendidas del nuevo sistema de registro
-     * sin perder datos existentes en instalaciones previas.
+     * Asegura que las tablas tengan las columnas e índices necesarios para perfiles,
+     * estados, respuestas en comentarios y notificaciones sin perder datos previos.
      */
     private static function ensureSchemaUpgrades(PDO $pdo): void
     {
@@ -51,8 +51,45 @@ class Database
             if (!in_array('country', $cols, true)) {
                 $pdo->exec("ALTER TABLE users ADD COLUMN country VARCHAR(50) DEFAULT 'Argentina' AFTER age");
             }
+            if (!in_array('status_message', $cols, true)) {
+                $pdo->exec("ALTER TABLE users ADD COLUMN status_message VARCHAR(160) DEFAULT '¡Hola! Estoy en TuSecreto.' AFTER country");
+            }
+
+            // Asignar alias automático a cuentas antiguas que no tengan username
+            $pdo->exec("UPDATE users SET username = CONCAT('usuario_', id) WHERE username IS NULL OR username = ''");
         } catch (PDOException $e) {
-            // Si la tabla aún no existe, se ignora para permitir su creación manual o vía script SQL.
+            // Ignorar si la tabla users aún no existe
+        }
+
+        try {
+            // Asegurar columna parent_id en comments para respuestas anidadas
+            $commentCols = $pdo->query("SHOW COLUMNS FROM comments")->fetchAll(PDO::FETCH_COLUMN);
+            if (!in_array('parent_id', $commentCols, true)) {
+                $pdo->exec("ALTER TABLE comments ADD COLUMN parent_id INT NULL DEFAULT NULL AFTER user_id");
+                $pdo->exec("ALTER TABLE comments ADD INDEX idx_comments_parent (parent_id)");
+            }
+        } catch (PDOException $e) {
+            // Ignorar si la tabla comments aún no existe
+        }
+
+        try {
+            // Crear tabla de notificaciones compatible tanto con motores MyISAM como InnoDB en WAMP
+            $pdo->exec("
+                CREATE TABLE IF NOT EXISTS notifications (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    actor_id INT NOT NULL,
+                    secret_id INT NOT NULL,
+                    comment_id INT NOT NULL,
+                    type ENUM('comment_secret', 'reply_comment') NOT NULL,
+                    is_read TINYINT(1) NOT NULL DEFAULT 0,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    INDEX idx_notifications_user_read (user_id, is_read),
+                    INDEX idx_notifications_created_at (created_at)
+                ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+            ");
+        } catch (PDOException $e) {
+            // Ignorar si ocurre un error de permisos
         }
     }
 }

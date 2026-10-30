@@ -5,7 +5,7 @@ require_once __DIR__ . '/db_connect.php';
 
 /**
  * Clase de Autenticación y Gestión de Usuarios.
- * Implementa validaciones estrictas, hashing seguro y protección contra fijación de sesión.
+ * Implementa validaciones estrictas, hashing seguro, gestión de perfil y protección contra fijación de sesión.
  */
 class Auth
 {
@@ -29,7 +29,7 @@ class Auth
     }
 
     /**
-     * Devuelve el estado actual de la sesión junto con las preferencias del usuario.
+     * Devuelve el estado actual de la sesión junto con los datos de perfil del usuario.
      */
     public function getStatus(): array
     {
@@ -41,7 +41,7 @@ class Auth
         }
 
         $stmt = $this->pdo->prepare(
-            "SELECT id, username, email, gender, age, country, created_at FROM users WHERE id = ? LIMIT 1"
+            "SELECT id, username, email, gender, age, country, status_message, created_at FROM users WHERE id = ? LIMIT 1"
         );
         $stmt->execute([(int) $_SESSION['user_id']]);
         $user = $stmt->fetch();
@@ -54,16 +54,71 @@ class Auth
             ];
         }
 
+        $username = !empty($user['username']) ? (string) $user['username'] : 'usuario_' . $user['id'];
+
         return [
             'logged_in' => true,
             'user_id'   => (int) $user['id'],
             'user'      => [
-                'id'       => (int) $user['id'],
-                'username' => htmlspecialchars($user['username'] ?? 'Anónimo', ENT_QUOTES, 'UTF-8'),
-                'email'    => htmlspecialchars($user['email'], ENT_QUOTES, 'UTF-8'),
-                'gender'   => htmlspecialchars($user['gender'] ?? 'Otro', ENT_QUOTES, 'UTF-8'),
-                'age'      => $user['age'] !== null ? (int) $user['age'] : null,
-                'country'  => htmlspecialchars($user['country'] ?? 'Argentina', ENT_QUOTES, 'UTF-8'),
+                'id'             => (int) $user['id'],
+                'username'       => htmlspecialchars($username, ENT_QUOTES, 'UTF-8'),
+                'email'          => htmlspecialchars((string) $user['email'], ENT_QUOTES, 'UTF-8'),
+                'gender'         => htmlspecialchars((string) ($user['gender'] ?? 'Otro'), ENT_QUOTES, 'UTF-8'),
+                'age'            => $user['age'] !== null ? (int) $user['age'] : null,
+                'country'        => htmlspecialchars((string) ($user['country'] ?? 'Argentina'), ENT_QUOTES, 'UTF-8'),
+                'status_message' => htmlspecialchars((string) ($user['status_message'] ?? '¡Hola! Estoy en TuSecreto.'), ENT_QUOTES, 'UTF-8'),
+                'created_at'     => (string) $user['created_at'],
+            ],
+        ];
+    }
+
+    /**
+     * Actualiza el estado y los datos básicos del perfil del usuario autenticado.
+     */
+    public function updateProfile(int $userId, array $input): array
+    {
+        $statusMessage = trim((string) ($input['status_message'] ?? ''));
+        $gender        = trim((string) ($input['gender'] ?? 'Otro'));
+        $age           = isset($input['age']) && $input['age'] !== '' ? (int) $input['age'] : null;
+        $country       = trim((string) ($input['country'] ?? 'Argentina'));
+
+        if (mb_strlen($statusMessage) > 160) {
+            return [
+                'status'  => 400,
+                'payload' => ['success' => false, 'error' => 'El estado no puede superar los 160 caracteres.'],
+            ];
+        }
+
+        if ($statusMessage === '') {
+            $statusMessage = '¡Hola! Estoy en TuSecreto.';
+        }
+
+        if (!in_array($gender, self::ALLOWED_GENDERS, true)) {
+            $gender = 'Otro';
+        }
+
+        if (!in_array($country, self::ALLOWED_COUNTRIES, true)) {
+            $country = 'Argentina';
+        }
+
+        if ($age !== null && ($age < 13 || $age > 99)) {
+            return [
+                'status'  => 400,
+                'payload' => ['success' => false, 'error' => 'La edad debe estar entre 13 y 99 años.'],
+            ];
+        }
+
+        $stmt = $this->pdo->prepare(
+            "UPDATE users SET status_message = ?, gender = ?, age = ?, country = ? WHERE id = ?"
+        );
+        $stmt->execute([$statusMessage, $gender, $age, $country, $userId]);
+
+        return [
+            'status'  => 200,
+            'payload' => [
+                'success' => true,
+                'message' => 'Perfil actualizado correctamente.',
+                'user'    => $this->getStatus()['user'],
             ],
         ];
     }
@@ -148,9 +203,9 @@ class Auth
         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
         $stmtInsert = $this->pdo->prepare(
-            "INSERT INTO users (username, email, password, gender, age, country) VALUES (?, ?, ?, ?, ?, ?)"
+            "INSERT INTO users (username, email, password, gender, age, country, status_message) VALUES (?, ?, ?, ?, ?, ?, ?)"
         );
-        $stmtInsert->execute([$username, $email, $passwordHash, $gender, $age, $country]);
+        $stmtInsert->execute([$username, $email, $passwordHash, $gender, $age, $country, '¡Hola! Estoy en TuSecreto.']);
 
         $userId = (int) $this->pdo->lastInsertId();
 
